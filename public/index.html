@@ -1,41 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Онлайн шутер (HTML-версия)</title>
+    <title>Attack.io</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="style.css">
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <!-- Экран входа -->
-    <div id="login-screen">
-        <h1>🚀 Онлайн шутер</h1>
+    <!-- Главное меню -->
+    <div id="main-menu" class="screen">
+        <h1>Attack.io</h1>
+        <div id="error-box" class="hidden">
+            <p>Введите имя игрока!</p>
+            <button onclick="hideError()">✕</button>
+        </div>
         <input type="text" id="username" placeholder="Ваш ник">
         <button id="play-btn">Играть</button>
     </div>
 
-    <!-- Игровое поле -->
-    <div id="game-container" style="display: none;">
-        <!-- Игроки и пули рисуются через JS -->
+    <!-- Игровой экран -->
+    <div id="game-screen" class="screen hidden">
+        <div id="game-container"></div>
+        <div id="health-bar">HP: 100</div>
+        <div id="connection-warning" class="hidden">Ваше соединение не стабильно!</div>
+        
+        <!-- Управление -->
+        <div id="move-joystick" class="joystick"></div>
+        <div id="shoot-joystick" class="joystick"></div>
+        <button id="menu-btn">Меню</button>
+        <button id="players-btn">Игроки</button>
     </div>
 
-    <!-- Чат -->
-    <div id="chat-box"></div>
-    <input type="text" id="chat-input" placeholder="Сообщение..." style="display: none;">
+    <!-- Меню игроков -->
+    <div id="players-menu" class="popup hidden">
+        <div class="popup-content">
+            <h2>Игроки онлайн</h2>
+            <div id="players-list"></div>
+            <button onclick="closePopup('players-menu')">Закрыть</button>
+        </div>
+    </div>
 
-    <!-- Кнопка списка игроков -->
-    <button id="players-btn">👥 Игроки</button>
+    <!-- Меню паузы -->
+    <div id="pause-menu" class="popup hidden">
+        <div class="popup-content">
+            <h2>Меню</h2>
+            <button onclick="returnToMainMenu()">Главное меню</button>
+            <button onclick="closePopup('pause-menu')">Продолжить</button>
+        </div>
+    </div>
 
-    <!-- Модальное окно с игроками -->
-    <div id="players-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Подключённые игроки</h2>
-            <table id="players-table">
-                <thead>
-                    <tr><th>Ник</th><th>Статус</th></tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+    <!-- Экран смерти -->
+    <div id="death-screen" class="popup hidden">
+        <div class="popup-content">
+            <h2>Вы погибли!</h2>
+            <p>Возрождение через <span id="respawn-timer">5</span> сек...</p>
+            <button onclick="returnToMainMenu()">Главное меню</button>
+            <button id="respawn-btn" disabled>Возродиться (5)</button>
         </div>
     </div>
 
