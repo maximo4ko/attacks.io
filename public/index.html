@@ -8,51 +8,62 @@
 </head>
 <body>
     <!-- Главное меню -->
-    <div id="main-menu" class="screen">
-        <h1>ATTACK.IO</h1>
-        <div id="error-box" class="hidden">
-            <p>Введите имя игрока!</p>
-            <button onclick="hideError()">✕</button>
+    <div id="main-menu" class="screen active">
+        <div class="menu-container">
+            <h1>ATTACK.IO</h1>
+            <div id="error-box" class="hidden">
+                <p>Введите имя игрока!</p>
+                <button onclick="hideError()">✕</button>
+            </div>
+            <input type="text" id="username" placeholder="Ваш ник">
+            <button id="play-btn">ИГРАТЬ</button>
         </div>
-        <input type="text" id="username" placeholder="Ваш ник">
-        <button id="play-btn">ИГРАТЬ</button>
     </div>
 
     <!-- Игровой экран -->
-    <div id="game-screen" class="screen hidden">
+    <div id="game-screen" class="screen">
         <div id="game-container"></div>
-        <div id="health-bar">❤️ 100HP</div>
-        <div id="connection-warning" class="hidden">⚠️ Плохое соединение!</div>
         
+        <!-- HUD -->
+        <div id="hud">
+            <div id="health-bar">❤️ 100HP</div>
+            <div id="connection-warning" class="hidden">⚠️ Плохое соединение!</div>
+        </div>
+
         <!-- Управление -->
-        <div id="move-joystick" class="joystick"></div>
-        <div id="shoot-joystick" class="joystick"></div>
-        <button id="menu-btn">≡</button>
-        <button id="players-btn">👥</button>
+        <div id="controls">
+            <div id="move-joystick" class="joystick"></div>
+            <div id="shoot-joystick" class="joystick"></div>
+            <button id="menu-btn">≡</button>
+            <button id="players-btn">👥</button>
+        </div>
     </div>
 
-    <!-- Попапы -->
-    <div id="players-popup" class="popup hidden">
+    <!-- Меню паузы -->
+    <div id="pause-menu" class="popup">
         <div class="popup-content">
-            <h2>Игроки онлайн (<span id="players-count">0</span>)</h2>
+            <h2>МЕНЮ</h2>
+            <button onclick="returnToMainMenu()">Главное меню</button>
+            <button onclick="closeMenu()">Продолжить</button>
+            <button id="exit-btn">Выйти</button>
+        </div>
+    </div>
+
+    <!-- Список игроков -->
+    <div id="players-menu" class="popup">
+        <div class="popup-content">
+            <h2>ИГРОКИ (<span id="online-count">0</span>)</h2>
             <div id="players-list"></div>
-            <button onclick="closePopup('players-popup')">Закрыть</button>
+            <button onclick="closePlayersMenu()">Закрыть</button>
         </div>
     </div>
 
-    <div id="pause-popup" class="popup hidden">
-        <div class="popup-content">
-            <h2>Меню</h2>
-            <button onclick="returnToMenu()">Выйти в меню</button>
-            <button onclick="closePopup('pause-popup')">Продолжить</button>
-        </div>
-    </div>
-
-    <div id="death-popup" class="popup hidden">
+    <!-- Экран смерти -->
+    <div id="death-screen" class="popup">
         <div class="popup-content">
             <h2>💀 ВЫ УМЕРЛИ</h2>
             <p>Возрождение через <span id="respawn-timer">5</span>с</p>
-            <button onclick="returnToMenu()">Выйти</button>
+            <button onclick="returnToMainMenu()">Главное меню</button>
             <button id="respawn-btn" disabled>Ждать (<span>5</span>)</button>
         </div>
     </div>
