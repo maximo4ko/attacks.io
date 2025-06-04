@@ -1,10 +1,13 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: { origin: "*" }
+});
 const PORT = process.env.PORT || 3000;
 
 const players = {};
+const walls = [];
 
 app.use(express.static('public'));
 
@@ -12,7 +15,13 @@ io.on('connection', (socket) => {
     console.log('Новый игрок:', socket.id);
 
     socket.on('join', (username) => {
-        players[socket.id] = { x: 400, y: 300, username };
+        players[socket.id] = {
+            x: Math.random() * 800,
+            y: Math.random() * 600,
+            username: username,
+            health: 100
+        };
+        io.emit('playerJoined', username);
         io.emit('players', players);
     });
 
@@ -24,9 +33,20 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('shoot', (data) => {
+        io.emit('bulletFired', data);
+    });
+
+    socket.on('chat', (msg) => {
+        io.emit('chat', `${players[socket.id].username}: ${msg}`);
+    });
+
     socket.on('disconnect', () => {
-        delete players[socket.id];
-        io.emit('players', players);
+        if (players[socket.id]) {
+            io.emit('chat', `${players[socket.id].username} вышел`);
+            delete players[socket.id];
+            io.emit('players', players);
+        }
     });
 });
 
