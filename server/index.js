@@ -1,13 +1,10 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
-    cors: { origin: "*" }
-});
+const io = require('socket.io')(server, { cors: { origin: "*" } });
 const PORT = process.env.PORT || 3000;
 
-const players = {};
-const walls = [];
+let players = {};
 
 app.use(express.static('public'));
 
@@ -16,13 +13,13 @@ io.on('connection', (socket) => {
 
     socket.on('join', (username) => {
         players[socket.id] = {
-            x: Math.random() * 800,
-            y: Math.random() * 600,
-            username: username,
-            health: 100
+            id: socket.id,
+            username,
+            x: Math.random() * 700 + 50,
+            y: Math.random() * 500 + 50
         };
-        io.emit('playerJoined', username);
-        io.emit('players', players);
+        io.emit('init', { players });
+        io.emit('playerJoined', players[socket.id]);
     });
 
     socket.on('move', (data) => {
@@ -33,19 +30,10 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('shoot', (data) => {
-        io.emit('bulletFired', data);
-    });
-
-    socket.on('chat', (msg) => {
-        io.emit('chat', `${players[socket.id].username}: ${msg}`);
-    });
-
     socket.on('disconnect', () => {
         if (players[socket.id]) {
-            io.emit('chat', `${players[socket.id].username} вышел`);
+            io.emit('playerLeft', socket.id);
             delete players[socket.id];
-            io.emit('players', players);
         }
     });
 });
