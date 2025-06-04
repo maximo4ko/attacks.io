@@ -1,17 +1,72 @@
+/* Основные стили */
 body {
     margin: 0;
-    overflow: hidden;
-    font-family: Arial;
-    background: #111;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
     color: white;
+    touch-action: none;
+    overflow: hidden;
+    user-select: none;
 }
 
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #222;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Главное меню */
+#main-menu h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: #ff5555;
+}
+
+#main-menu input {
+    padding: 15px;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 300px;
+}
+
+#main-menu button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background: #ff5555;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#error-box {
+    background: #ff3333;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+/* Игровой экран */
 #game-container {
     position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 0 auto;
-    background: #222;
+    width: 100%;
+    height: 100%;
+    background: #333;
     overflow: hidden;
 }
 
@@ -19,17 +74,21 @@ body {
     position: absolute;
     width: 40px;
     height: 40px;
-    background: #00FF00;
     border-radius: 50%;
-    transition: all 0.1s linear;
+    background: red;
+    transition: transform 0.1s;
+}
+
+.my-player {
+    background: blue !important;
 }
 
 .bullet {
     position: absolute;
     width: 10px;
     height: 10px;
-    background: yellow;
     border-radius: 50%;
+    background: yellow;
 }
 
 .wall {
@@ -37,39 +96,87 @@ body {
     background: #555;
 }
 
-/* Модальное окно */
-.modal {
-    display: none;
+/* Джойстики */
+.joystick {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    bottom: 20px;
+}
+
+#move-joystick {
+    left: 20px;
+}
+
+#shoot-joystick {
+    right: 20px;
+}
+
+/* Кнопки управления */
+#menu-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    border-radius: 5px;
+}
+
+#players-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    border-radius: 5px;
+}
+
+/* Попапы */
+.popup {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 1000;
 }
 
-.modal-content {
+.popup-content {
     background: #333;
-    margin: 10% auto;
     padding: 20px;
-    width: 300px;
     border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
 }
 
-.close {
-    float: right;
+.popup button {
+    padding: 10px 20px;
+    margin: 10px;
+    background: #ff5555;
+    border: none;
+    color: white;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 24px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #555;
+/* Предупреждение о соединении */
+#connection-warning {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: red;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
 }
