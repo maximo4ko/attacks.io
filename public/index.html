@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Attack.io</title>
+    <title>ATTACK.IO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="style.css">
     <script src="/socket.io/socket.io.js"></script>
@@ -9,53 +9,51 @@
 <body>
     <!-- Главное меню -->
     <div id="main-menu" class="screen">
-        <h1>Attack.io</h1>
+        <h1>ATTACK.IO</h1>
         <div id="error-box" class="hidden">
             <p>Введите имя игрока!</p>
             <button onclick="hideError()">✕</button>
         </div>
         <input type="text" id="username" placeholder="Ваш ник">
-        <button id="play-btn">Играть</button>
+        <button id="play-btn">ИГРАТЬ</button>
     </div>
 
     <!-- Игровой экран -->
     <div id="game-screen" class="screen hidden">
         <div id="game-container"></div>
-        <div id="health-bar">HP: 100</div>
-        <div id="connection-warning" class="hidden">Ваше соединение не стабильно!</div>
+        <div id="health-bar">❤️ 100HP</div>
+        <div id="connection-warning" class="hidden">⚠️ Плохое соединение!</div>
         
         <!-- Управление -->
         <div id="move-joystick" class="joystick"></div>
         <div id="shoot-joystick" class="joystick"></div>
-        <button id="menu-btn">Меню</button>
-        <button id="players-btn">Игроки</button>
+        <button id="menu-btn">≡</button>
+        <button id="players-btn">👥</button>
     </div>
 
-    <!-- Меню игроков -->
-    <div id="players-menu" class="popup hidden">
+    <!-- Попапы -->
+    <div id="players-popup" class="popup hidden">
         <div class="popup-content">
-            <h2>Игроки онлайн</h2>
+            <h2>Игроки онлайн (<span id="players-count">0</span>)</h2>
             <div id="players-list"></div>
-            <button onclick="closePopup('players-menu')">Закрыть</button>
+            <button onclick="closePopup('players-popup')">Закрыть</button>
         </div>
     </div>
 
-    <!-- Меню паузы -->
-    <div id="pause-menu" class="popup hidden">
+    <div id="pause-popup" class="popup hidden">
         <div class="popup-content">
             <h2>Меню</h2>
-            <button onclick="returnToMainMenu()">Главное меню</button>
-            <button onclick="closePopup('pause-menu')">Продолжить</button>
+            <button onclick="returnToMenu()">Выйти в меню</button>
+            <button onclick="closePopup('pause-popup')">Продолжить</button>
         </div>
     </div>
 
-    <!-- Экран смерти -->
-    <div id="death-screen" class="popup hidden">
+    <div id="death-popup" class="popup hidden">
         <div class="popup-content">
-            <h2>Вы погибли!</h2>
-            <p>Возрождение через <span id="respawn-timer">5</span> сек...</p>
-            <button onclick="returnToMainMenu()">Главное меню</button>
-            <button id="respawn-btn" disabled>Возродиться (5)</button>
+            <h2>💀 ВЫ УМЕРЛИ</h2>
+            <p>Возрождение через <span id="respawn-timer">5</span>с</p>
+            <button onclick="returnToMenu()">Выйти</button>
+            <button id="respawn-btn" disabled>Ждать (<span>5</span>)</button>
         </div>
     </div>
 
