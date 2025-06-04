@@ -1,161 +1,105 @@
-let game;
-let player;
-let otherPlayers = {};
-let bullets = [];
-let walls = [];
-let joystickMove, joystickShoot;
-let socket;
+// Инициализация
+const socket = io();
 let username = "";
+let players = {};
+let myPlayerId = "";
 
-// Инициализация игры
+// Элементы DOM
+const gameContainer = document.getElementById('game-container');
+const playersBtn = document.getElementById('players-btn');
+const playersModal = document.getElementById('players-modal');
+const closeBtn = document.querySelector('.close');
+
+// Кнопка "Играть"
 document.getElementById('play-btn').addEventListener('click', () => {
     username = document.getElementById('username').value || "Player" + Math.floor(Math.random() * 1000);
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('chat-input').style.display = 'block';
-    initGame();
+    gameContainer.style.display = 'block';
+    socket.emit('join', username);
 });
 
-function initGame() {
-    const config = {
-        type: Phaser.AUTO,
-        width: 800,
-        height: 600,
-        parent: 'game-container',
-        physics: {
-            default: 'arcade',
-            arcade: { gravity: { y: 0 }, debug: false }
-        },
-        scene: {
-            preload: preload,
-            create: create,
-            update: update
-        },
-        plugins: {
-            global: [{
-                key: 'rexVirtualJoystick',
-                plugin: rexvirtualjoystickplugin,
-                start: true
-            }]
-        }
-    };
-    game = new Phaser.Game(config);
-}
+// Кнопка списка игроков
+playersBtn.addEventListener('click', () => {
+    playersModal.style.display = 'block';
+});
 
-function preload() {
-    this.load.image('player', 'assets/player.png');
-    this.load.image('bullet', 'assets/bullet.png');
-    this.load.image('wall', 'assets/wall.png');
-}
+// Закрытие модального окна
+closeBtn.addEventListener('click', () => {
+    playersModal.style.display = 'none';
+});
 
-function create() {
-    // Подключение к серверу
-    socket = io();
-    socket.emit('join', username);
+// Отрисовка игроков
+function renderPlayers() {
+    // Удаляем старых игроков
+    document.querySelectorAll('.player').forEach(el => el.remove());
 
-    // Создаем стены
-    walls = this.physics.add.staticGroup();
-    for (let i = 0; i < 10; i++) {
-        walls.create(
-            Phaser.Math.Between(50, 750),
-            Phaser.Math.Between(50, 550),
-            'wall'
-        ).setScale(0.5).refreshBody();
-    }
-
-    // Создаем игрока
-    player = this.physics.add.sprite(400, 300, 'player').setScale(0.5);
-    player.setCollideWorldBounds(true);
-    this.physics.add.collider(player, walls);
-
-    // Джойстики
-    joystickMove = this.plugins.get('rexVirtualJoystick').add(this, {
-        x: 100, y: 500, radius: 50,
-        base: this.add.circle(0, 0, 50, 0x888888),
-        thumb: this.add.circle(0, 0, 25, 0xcccccc)
-    });
-
-    joystickShoot = this.plugins.get('rexVirtualJoystick').add(this, {
-        x: 700, y: 500, radius: 50,
-        base: this.add.circle(0, 0, 50, 0x888888),
-        thumb: this.add.circle(0, 0, 25, 0xcccccc)
-    });
-
-    // Чат
-    document.getElementById('chat-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const message = e.target.value;
-            if (message) {
-                socket.emit('chat', message);
-                addMessage(`${username}: ${message}`);
-                e.target.value = '';
-            }
-        }
-    });
-
-    // Обработчики событий
-    socket.on('players', (players) => {
-        Object.keys(players).forEach(id => {
-            if (id !== socket.id && !otherPlayers[id]) {
-                otherPlayers[id] = this.physics.add.sprite(
-                    players[id].x,
-                    players[id].y,
-                    'player'
-                ).setScale(0.5);
-            }
-        });
-    });
-
-    socket.on('playerMoved', (data) => {
-        if (otherPlayers[data.id]) {
-            otherPlayers[data.id].setPosition(data.x, data.y);
-        }
-    });
-
-    socket.on('bulletFired', (data) => {
-        const bullet = this.physics.add.sprite(data.x, data.y, 'bullet').setScale(0.3);
-        bullet.setVelocity(data.velX * 500, data.velY * 500);
-        bullets.push(bullet);
-    });
-
-    socket.on('playerDied', (id) => {
-        if (otherPlayers[id]) {
-            otherPlayers[id].setVisible(false);
-            setTimeout(() => {
-                otherPlayers[id].setVisible(true);
-            }, 3000);
-        }
-    });
-
-    socket.on('chat', (msg) => {
-        addMessage(msg);
-    });
-
-    socket.on('playerJoined', (name) => {
-        addMessage(`${name} присоединился!`);
-    });
-}
-
-function update() {
-    // Движение игрока
-    const moveX = joystickMove.forceX;
-    const moveY = joystickMove.forceY;
-    player.setVelocityX(moveX * 200);
-    player.setVelocityY(moveY * 200);
-    socket.emit('move', { x: player.x, y: player.y });
-
-    // Стрельба
-    if (joystickShoot.forceX !== 0 || joystickShoot.forceY !== 0) {
-        socket.emit('shoot', {
-            x: player.x,
-            y: player.y,
-            velX: joystickShoot.forceX,
-            velY: joystickShoot.forceY
-        });
+    // Рисуем всех игроков
+    for (const id in players) {
+        const player = players[id];
+        const playerEl = document.createElement('div');
+        playerEl.className = 'player';
+        playerEl.style.left = player.x + 'px';
+        playerEl.style.top = player.y + 'px';
+        playerEl.style.backgroundColor = id === myPlayerId ? '#00FF00' : '#FF0000';
+        gameContainer.appendChild(playerEl);
     }
 }
 
-function addMessage(msg) {
-    const chatBox = document.getElementById('chat-box');
-    chatBox.innerHTML += `<div>${msg}</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
+// Обновление таблицы игроков
+function updatePlayersTable() {
+    const tbody = document.querySelector('#players-table tbody');
+    tbody.innerHTML = '';
+    for (const id in players) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${players[id].username}</td>
+            <td>${id === myPlayerId ? 'Вы' : 'В игре'}</td>
+        `;
+        tbody.appendChild(row);
+    }
 }
+
+// События с сервера
+socket.on('init', (data) => {
+    myPlayerId = socket.id;
+    players = data.players;
+    renderPlayers();
+    updatePlayersTable();
+});
+
+socket.on('playerJoined', (playerData) => {
+    players[playerData.id] = playerData;
+    renderPlayers();
+    updatePlayersTable();
+});
+
+socket.on('playerMoved', (data) => {
+    if (players[data.id]) {
+        players[data.id].x = data.x;
+        players[data.id].y = data.y;
+        renderPlayers();
+    }
+});
+
+socket.on('playerLeft', (id) => {
+    delete players[id];
+    renderPlayers();
+    updatePlayersTable();
+});
+
+// Управление (движение мышкой)
+gameContainer.addEventListener('mousemove', (e) => {
+    const rect = gameContainer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    socket.emit('move', { x, y });
+});
+
+// Стрельба (клик)
+gameContainer.addEventListener('click', (e) => {
+    const rect = gameContainer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    socket.emit('shoot', { x, y });
+});
